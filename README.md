@@ -18,6 +18,3 @@ youtube 视频批量下载
 2. 执行 `npm run install-video`
 
 3. 下载完成后在文件夹 `videos/` 查看下载好的视频和对应的附加信息
-
-
-![](./1.png)

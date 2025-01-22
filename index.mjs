@@ -9,8 +9,8 @@ import { fileURLToPath } from "url";
 const slog = singleLineLog.stdout;
 // 待下载的 YouTube 视频链接
 const urls = [
-  "https://www.youtube.com/watch?v=mphHFk5IXsQ",
-  "https://www.youtube.com/watch?v=7m8nON7zf0U",
+  // "https://www.youtube.com/watch?v=mphHFk5IXsQ",
+  // "https://www.youtube.com/watch?v=7m8nON7zf0U",
   "https://www.youtube.com/watch?v=V8myIkor52g",
 ];
 
@@ -63,10 +63,13 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
             2
           )
         );
+        const format = info.formats.find(
+          (format) => format.qualityLabel = 'hd720'
+        )
+        fs.writeFileSync(`./formats-${info.videoDetails.title}.json`, JSON.stringify(info.formats, undefined, 2))
+        console.log({format})
         // 视频总大小
-        const totalSize = info.formats.find(
-          (format) => format.itag === 18
-        ).contentLength;
+        const totalSize = format.contentLength;
         // 创建进度流
         // console.log({totalSize})
         const progressStream = progress({
@@ -87,6 +90,7 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
           slog(
             chalk.yellow(`正在下载第${Number(idx) + 1}个视频`),
             chalk.redBright(title),
+            chalk.blue(`分辨率:${format.qualityLabel}`),
             chalk.gray(` ${dldcount}s `),
             chalk.greenBright(`${progress.percentage.toFixed(2)}%`),
             `${new Array(doneBarLength).fill(chalk.green("█")).join("")}${new Array(
@@ -96,7 +100,7 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
               .join("")}`
           );
         });
-        ytdl(u, { filter: "audioandvideo", quality: "highest" })
+        ytdl(u, { format })  // 设置缓冲区为 10MB
           .pipe(progressStream)
           .pipe(
             fs.createWriteStream(
