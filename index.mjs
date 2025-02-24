@@ -9,9 +9,10 @@ import { fileURLToPath } from "url";
 const slog = singleLineLog.stdout;
 // 待下载的 YouTube 视频链接
 const urls = [
+  "https://www.youtube.com/watch?v=DZdUS9cDovQ",
   // "https://www.youtube.com/watch?v=mphHFk5IXsQ",
   // "https://www.youtube.com/watch?v=7m8nON7zf0U",
-  "https://www.youtube.com/watch?v=V8myIkor52g",
+  // "https://www.youtube.com/watch?v=V8myIkor52g",
 ];
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -100,7 +101,7 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
               .join("")}`
           );
         });
-        ytdl(u, { format })  // 设置缓冲区为 10MB
+        ytdl(u, { format })
           .pipe(progressStream)
           .pipe(
             fs.createWriteStream(
