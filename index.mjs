@@ -47,10 +47,9 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
             `${count++}s`
           );
         }, 1000);
-        console.log({ u });
         const info = await ytdl.getBasicInfo(u);
         clearInterval(timer);
-        console.log({ info });
+        // console.log({ info });
         const { author, description, ownerProfileUrl, video_url, publishDate } =
           info.videoDetails;
         fs.mkdirSync(
@@ -77,11 +76,11 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
         const format = info.formats.find(
           (format) => (format.qualityLabel = "hd720")
         );
-        fs.writeFileSync(
-          `./formats-${info.videoDetails.title}.json`,
-          JSON.stringify(info.formats, undefined, 2)
-        );
-        console.log({ format });
+        // fs.writeFileSync(
+        //   `./formats-${info.videoDetails.title}.json`,
+        //   JSON.stringify(info.formats, undefined, 2)
+        // );
+        // console.log({ format });
         // 视频总大小
         const totalSize = format.contentLength;
         // 创建进度流
