@@ -12,10 +12,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@ybd-project/ytdl-core": "^6.0.8",
     "chalk": "^5.4.1",
     "progress": "^2.0.3",
     "progress-stream": "^2.0.0",
-    "single-line-log": "^1.1.2",
-    "ytdl-core": "npm:@distube/ytdl-core@^4.15.8"
+    "single-line-log": "^1.1.2"
   }
 }
