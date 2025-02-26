@@ -8,9 +8,9 @@ youtube 视频批量下载
 
 0. 先挂上 VPN，确保能正常访问 YouTube.
 
-1. 在未登陆 YouTube 的情况下，先从 v1/player 接口返回拿到 potoken 值
+1. 在未登陆 YouTube 的情况下，先从 v1/player 接口返回拿到 potoken 值和 visitorData，复制到代码里
 
-    具体方法[Add PoToken](https://pytubefix.readthedocs.io/en/latest/user/po_token.html)
+    具体方法见 [Add PoToken](https://pytubefix.readthedocs.io/en/latest/user/po_token.html)
     >>原始证明（PO）令牌是YouTube需要通过某些客户的视频播放请求发送的参数。如果没有它，受影响客户的格式URL请求可能会返回HTTP错误403，带有机器人检测的错误或导致您的帐户或IP地址被阻止。
 
     ![](./potoken.png) 

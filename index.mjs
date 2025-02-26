@@ -20,7 +20,10 @@ const urls = [
   // "https://www.youtube.com/watch?v=7m8nON7zf0U",
   // "https://www.youtube.com/watch?v=V8myIkor52g",
 ];
-const poToken = ''
+const poToken =
+  "MlO_wASGm2L3EL_8Bi0ODWURgiXTwNkLD-OQHgYwkUgHJnU95RjBc7Iv3-_ZUAZTdRtIU3Iud2dorLVLV9zoFDbVQwAAKy52EWDqAZTA_sLEDzJvGw==";
+const visitorData =
+  "CgswakZrclVDLU84YyiWzPy9BjIiCgJOTBIcEhgSFhMLFBUWFwwYGRobHB0eHw4PIBAREiEgbQ%3D%3D";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -47,6 +50,7 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
         }, 1000);
         const info = await ytdl.getBasicInfo(u, {
           poToken,
+          visitorData,
         });
         clearInterval(timer);
         // console.log({ info });
@@ -113,7 +117,7 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
               .join("")}`
           );
         });
-        ytdl.download(u, { format, poToken }).then((stream) => {
+        ytdl.download(u, { format, poToken, visitorData }).then((stream) => {
           toPipeableStream(stream)
             .pipe(progressStream)
             .pipe(
