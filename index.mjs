@@ -20,6 +20,7 @@ const urls = [
   // "https://www.youtube.com/watch?v=7m8nON7zf0U",
   // "https://www.youtube.com/watch?v=V8myIkor52g",
 ];
+const poToken = ''
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -44,7 +45,9 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
             `${count++}s`
           );
         }, 1000);
-        const info = await ytdl.getBasicInfo(u);
+        const info = await ytdl.getBasicInfo(u, {
+          poToken,
+        });
         clearInterval(timer);
         // console.log({ info });
         const { author, description, ownerProfileUrl, video_url, publishDate } =
@@ -110,7 +113,7 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
               .join("")}`
           );
         });
-        ytdl.download(u, { format }).then((stream) => {
+        ytdl.download(u, { format, poToken }).then((stream) => {
           toPipeableStream(stream)
             .pipe(progressStream)
             .pipe(
