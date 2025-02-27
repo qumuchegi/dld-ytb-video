@@ -36,9 +36,10 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
 (async function () {
   let totalSpent = 0;
   const totalCpentTimer = setInterval(() => totalSpent++, 1000);
+  let failDldVideos = [];
   for (const idx in urls) {
     const u = urls[idx];
-    await new Promise(async (res) => {
+    const isDownloadSucc = await new Promise(async (res) => {
       let dldTimer;
       try {
         let count = 0;
@@ -77,8 +78,8 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
             2
           )
         );
-        const format = info.formats.find(
-          (format) => (format.qualityLabel = "hd720")
+        const formats = info.formats.filter(
+          (format) => (format.quality = "720p")
         );
         // fs.writeFileSync(
         //   `./formats-${info.videoDetails.title}.json`,
@@ -86,7 +87,9 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
         // );
         // console.log({ format });
         // 视频总大小
-        const totalSize = format.contentLength;
+        const totalSize = formats.reduce((total, f) => {
+          return total + f.contentLength;
+        }, 0);
         // 创建进度流
         // console.log({totalSize})
         const progressStream = progress({
@@ -107,7 +110,7 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
           slog(
             chalk.yellow(`正在下载第${Number(idx) + 1}个视频`),
             chalk.redBright(title),
-            chalk.blue(`分辨率:${format.qualityLabel}`),
+            chalk.blue(`分辨率:${formats[0].qualityLabel}`),
             chalk.gray(` ${dldcount}s `),
             chalk.greenBright(`${progress.percentage.toFixed(2)}%`),
             `${new Array(doneBarLength)
@@ -117,38 +120,67 @@ if (!fs.existsSync(path.resolve(__dirname, "./videos/"))) {
               .join("")}`
           );
         });
-        ytdl.download(u, { format, poToken, visitorData }).then((stream) => {
-          toPipeableStream(stream)
-            .pipe(progressStream)
-            .pipe(
-              fs.createWriteStream(
-                path.resolve(
-                  __dirname,
-                  `./videos/${info.videoDetails.title}/` + dldFilename
-                )
-              )
-            )
-            .on("finish", () => {
-              log(
-                chalk.green(`\n视频下载完成✅`),
-                chalk.redBright(`${info.videoDetails.title}`)
-              );
-              clearInterval(dldTimer);
-              res(undefined);
-            })
-            .on("error", (err) => {
-              log(chalk.red("视频下载出错", err.message));
-              clearInterval(dldTimer);
-              res(undefined);
-            });
-        });
+
+        for (let index = 0; index<formats.length; index ++) {
+          slog(`正在下载视频 ${u} 第 ${index+1} 段部分...`)
+          const format = formats[index]
+          const success = await downloadSingleChunk(format);
+          if (success) {
+            res(true);
+          } else {
+            res(false);
+          }
+        }
+
+        function downloadSingleChunk(format){
+          return new Promise((resolve) => {
+            ytdl
+              .download(u, { format, poToken, visitorData })
+              .then((stream) => {
+                toPipeableStream(stream)
+                  //.pipe(progressStream)
+                  .pipe(
+                    fs.createWriteStream(
+                      path.resolve(
+                        __dirname,
+                        `./videos/${info.videoDetails.title}/` + dldFilename
+                      ),
+                      {
+                        flags: "a",
+                      }
+                    )
+                  )
+                  .on("finish", () => {
+                    log(
+                      chalk.green(`\n视频下载完成✅`),
+                      chalk.redBright(`${info.videoDetails.title}`)
+                    );
+                    clearInterval(dldTimer);
+                    resolve(true);
+                  })
+                  .on("error", (err) => {
+                    log(chalk.red("视频下载出错", err.message));
+                    clearInterval(dldTimer);
+                    resolve(false);
+                  });
+              });
+          });
+        };
       } catch (err) {
         clearInterval(dldTimer);
-        res(undefined);
+        res(false);
         console.error(err);
       }
     });
+    if (!isDownloadSucc) {
+      failDldVideos.push(u);
+    }
   }
-  // log(chalk.green("视频全部下载完成", `耗时 ${totalSpent}s`));
+
+  if (failDldVideos.length === 0)
+    log(chalk.green("视频全部下载完成", `耗时 ${totalSpent}s`));
+  else {
+    log(chalk.red("这些视频下载失败或者下载没有完成", `耗时 ${totalSpent}s`));
+  }
   clearInterval(totalCpentTimer);
 })();
